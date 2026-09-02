@@ -9,7 +9,6 @@ import {
   Search,
   ArrowRight,
   LogOut,
-  User,
   ChevronDown,
 } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
@@ -256,7 +255,7 @@ function UserMenu() {
     <div className="relative" ref={menuRef}>
       <button
         onClick={() => setOpen(!open)}
-        className="flex items-center gap-2.5 rounded-full border border-[#E4EAE2] bg-white py-1.5 pl-1.5 pr-3 transition hover:border-[#288A49] hover:shadow-sm"
+        className="flex items-center gap-2.5 rounded-lg border border-[#E4EAE2] bg-white py-1.5 pl-1.5 pr-3 transition hover:border-[#288A49] hover:shadow-sm"
       >
         {user.avatar_url ? (
           <img
@@ -289,8 +288,9 @@ function UserMenu() {
               <p className="mt-1 text-[12px] text-[#288A49]">{user.fpo_name}</p>
             )}
           </div>
+
           <div className="p-1.5">
-            <a
+            {/* <a
               href="https://www.nafpo.in/my-account"
               target="_blank"
               rel="noopener noreferrer"
@@ -298,7 +298,8 @@ function UserMenu() {
             >
               <User size={16} className="text-[#6b8577]" />
               My Account
-            </a>
+            </a> */}
+
             <button
               onClick={logout}
               className="flex w-full items-center gap-2.5 rounded-xl px-3 py-2.5 text-[13px] text-[#173626] transition hover:bg-[#FEF2F2] hover:text-red-600"
