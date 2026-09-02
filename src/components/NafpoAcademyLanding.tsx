@@ -1,4 +1,4 @@
-import type { CSSProperties } from "react";
+import { useState, useRef, useEffect, type CSSProperties } from "react";
 import type { LucideIcon } from "lucide-react";
 import {
   FileText,
@@ -8,7 +8,11 @@ import {
   MessageCircle,
   Search,
   ArrowRight,
+  LogOut,
+  User,
+  ChevronDown,
 } from "lucide-react";
+import { useAuth } from "../context/AuthContext";
 
 /**
  * NAFPO Academy — landing / app-launcher page.
@@ -47,16 +51,15 @@ const TILES: AppTile[] = [
     featured: true,
   },
   {
-    key: "fpo-credit-readiness-self-assessment",
-    title: "FPO Credit-Readiness Self-Assessment",
-    sub: "nafpo academy assessment",
+    key: "credit-readiness",
+    title: "Credit-Readiness",
+    sub: "Score your FPO in minutes.",
     href: "https://nafpo-academy-assessment-tool.vercel.app",
-    icon: Search,
-    accent: "#785A3A",
-    tint: "#F0E9E1",
+    icon: BarChart3,
+    accent: "#D9A626",
+    tint: "#FAF3E0",
     status: "live",
-    cta: "Search",
-    external: true,
+    cta: "Check now",
   },
   {
     key: "whatsapp",
@@ -88,24 +91,13 @@ const TILES: AppTile[] = [
     key: "bharat-fpo-finder",
     title: "Bharat FPO Finder",
     sub: "40,000+ FPOs, MCA-verified.",
-    href: "https://www.nafpo.in/bharat-fpo-finder",
+    href: "https://bharatfpofinder.nafpo.in/main/home",
     icon: Search,
     accent: "#785A3A",
     tint: "#F0E9E1",
     status: "live",
     cta: "Search",
     external: true,
-  },
-  {
-    key: "credit-readiness",
-    title: "Credit-Readiness",
-    sub: "Score your FPO in minutes.",
-    href: "./FPO-Credit-Readiness-Assessment.html",
-    icon: BarChart3,
-    accent: "#D9A626",
-    tint: "#FAF3E0",
-    status: "live",
-    cta: "Check now",
   },
 
   {
@@ -138,8 +130,21 @@ function StatusBadge({ status, onDark }: { status: Status; onDark?: boolean }) {
   );
 }
 
+function buildHref(href: string, token: string | null): string {
+  if (!token || href === "#" || href.startsWith("./")) return href;
+  try {
+    const url = new URL(href);
+    url.searchParams.set("nafpo_token", token);
+    return url.toString();
+  } catch {
+    return href;
+  }
+}
+
 function Tile({ tile }: { tile: AppTile }) {
+  const { token } = useAuth();
   const { icon: Icon, featured, wide } = tile;
+  const href = buildHref(tile.href, token);
   const style = {
     ["--accent" as string]: tile.accent,
     ["--tint" as string]: tile.tint,
@@ -157,7 +162,7 @@ function Tile({ tile }: { tile: AppTile }) {
   if (featured) {
     return (
       <a
-        href={tile.href}
+        href={href}
         target="_blank"
         style={style}
         className={`${base} ${span} border-transparent bg-[linear-gradient(160deg,#1f7a41,#173626)] text-white hover:shadow-[0_22px_40px_-18px_rgba(23,54,38,.5)]`}
@@ -184,7 +189,7 @@ function Tile({ tile }: { tile: AppTile }) {
 
   return (
     <a
-      href={tile.href}
+      href={href}
       target={tile.external ? "_blank" : undefined}
       rel={tile.external ? "noopener noreferrer" : undefined}
       style={style}
@@ -210,6 +215,104 @@ function Tile({ tile }: { tile: AppTile }) {
   );
 }
 
+function UserMenu() {
+  const { user, loading, logout } = useAuth();
+  const [open, setOpen] = useState(false);
+  const menuRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    function handleClickOutside(e: MouseEvent) {
+      if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
+        setOpen(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  if (loading) return null;
+
+  if (!user) {
+    return (
+      <a
+        href="https://www.nafpo.in/become-associate"
+        target="_blank"
+        rel="noopener noreferrer"
+        className="rounded-full bg-[#173626] px-[18px] py-2.5 text-[13.5px] font-medium text-white transition hover:bg-[#288A49]"
+      >
+        Join NAFPO
+      </a>
+    );
+  }
+
+  const initials = [user.first_name, user.last_name]
+    .filter(Boolean)
+    .map((n) => n!.charAt(0).toUpperCase())
+    .join("");
+  const displayInitials =
+    initials || user.name?.charAt(0)?.toUpperCase() || "U";
+
+  return (
+    <div className="relative" ref={menuRef}>
+      <button
+        onClick={() => setOpen(!open)}
+        className="flex items-center gap-2.5 rounded-full border border-[#E4EAE2] bg-white py-1.5 pl-1.5 pr-3 transition hover:border-[#288A49] hover:shadow-sm"
+      >
+        {user.avatar_url ? (
+          <img
+            src={user.avatar_url}
+            alt=""
+            className="h-8 w-8 rounded-full object-cover"
+          />
+        ) : (
+          <span className="flex h-8 w-8 items-center justify-center rounded-full bg-[#288A49] text-[13px] font-bold text-white">
+            {displayInitials}
+          </span>
+        )}
+        <span className="hidden text-[13.5px] font-medium text-[#173626] sm:block">
+          {user.name}
+        </span>
+        <ChevronDown
+          size={14}
+          className={`text-[#6b8577] transition-transform ${open ? "rotate-180" : ""}`}
+        />
+      </button>
+
+      {open && (
+        <div className="absolute right-0 top-full z-30 mt-2 w-64 overflow-hidden rounded-2xl border border-[#E4EAE2] bg-white shadow-[0_12px_32px_rgba(23,54,38,.12)]">
+          <div className="border-b border-[#E4EAE2] px-4 py-3.5">
+            <p className="text-[14px] font-semibold text-[#173626]">
+              {user.name}
+            </p>
+            <p className="mt-0.5 text-[12px] text-[#6b8577]">{user.email}</p>
+            {user.fpo_name && (
+              <p className="mt-1 text-[12px] text-[#288A49]">{user.fpo_name}</p>
+            )}
+          </div>
+          <div className="p-1.5">
+            <a
+              href="https://www.nafpo.in/my-account"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-2.5 rounded-xl px-3 py-2.5 text-[13px] text-[#173626] transition hover:bg-[#F6F8F4]"
+            >
+              <User size={16} className="text-[#6b8577]" />
+              My Account
+            </a>
+            <button
+              onClick={logout}
+              className="flex w-full items-center gap-2.5 rounded-xl px-3 py-2.5 text-[13px] text-[#173626] transition hover:bg-[#FEF2F2] hover:text-red-600"
+            >
+              <LogOut size={16} className="text-[#6b8577]" />
+              Sign out
+            </button>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
 export default function NafpoAcademyLanding() {
   return (
     <div className="min-h-screen bg-[#F6F8F4] font-sans text-[#173626] antialiased">
@@ -221,14 +324,7 @@ export default function NafpoAcademyLanding() {
             alt="NAFPO"
             className="h-11 w-auto"
           />
-          <a
-            href="https://www.nafpo.in/become-associate"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="rounded-full bg-[#173626] px-[18px] py-2.5 text-[13.5px] font-medium text-white transition hover:bg-[#288A49]"
-          >
-            Join NAFPO
-          </a>
+          <UserMenu />
         </div>
       </nav>
 

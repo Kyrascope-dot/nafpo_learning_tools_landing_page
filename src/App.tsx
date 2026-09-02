@@ -1,10 +1,11 @@
+import { AuthProvider } from "./context/AuthContext";
 import NafpoAcademyLanding from "./components/NafpoAcademyLanding";
 
 const App = () => {
   return (
-    <div className="bg-red-600">
+    <AuthProvider>
       <NafpoAcademyLanding />
-    </div>
+    </AuthProvider>
   );
 };
 
