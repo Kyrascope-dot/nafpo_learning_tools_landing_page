@@ -103,7 +103,7 @@ const TILES: AppTile[] = [
     key: "scheme-navigator",
     title: "Scheme Navigator",
     sub: "34 central & state schemes.",
-    href: "./FPO-Scheme-Navigator.html",
+    href: "https://academy.nafpo.in/FPO-Scheme-Navigator.html",
     icon: Compass,
     accent: "#46A8D9",
     tint: "#E4F2FA",
