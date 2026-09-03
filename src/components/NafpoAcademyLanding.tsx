@@ -76,7 +76,7 @@ const TILES: AppTile[] = [
     key: "academy",
     title: "NAFPO Academy",
     sub: "Multilingual courses on governance, compliance & leadership for CEOs and Boards.",
-    href: "https://www.nafpo.in/nafpo-academy",
+    href: "https://academy.nafpo.in/",
     icon: GraduationCap,
     accent: "#288A49",
     tint: "#E8F3EC",
