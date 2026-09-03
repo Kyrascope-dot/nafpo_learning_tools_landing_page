@@ -83,7 +83,6 @@ const TILES: AppTile[] = [
     status: "live",
     cta: "Explore",
     wide: true,
-    external: true,
   },
 
   {
@@ -96,7 +95,6 @@ const TILES: AppTile[] = [
     tint: "#F0E9E1",
     status: "live",
     cta: "Search",
-    external: true,
   },
 
   {
@@ -189,7 +187,7 @@ function Tile({ tile }: { tile: AppTile }) {
   return (
     <a
       href={href}
-      target={tile.external ? "_blank" : undefined}
+      target="_blank"
       rel={tile.external ? "noopener noreferrer" : undefined}
       style={style}
       className={`${base} ${span} border-[#E4EAE2] bg-white hover:border-[color:var(--accent)] hover:shadow-[0_22px_40px_-18px_rgba(23,54,38,.28)]`}
